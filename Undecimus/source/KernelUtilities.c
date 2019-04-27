@@ -875,6 +875,9 @@ uint64_t get_exception_osarray(const char **exceptions) {
     size_t len=0;
     ssize_t written=0;
     char *ents = malloc(xmlsize);
+    if (ents == NULL) {
+        return 0;
+    }
     size_t xmlused = sprintf(ents, "<array>");
     for (const char **exception = exceptions; *exception; exception++) {
         len = strlen(*exception);
