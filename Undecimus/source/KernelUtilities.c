@@ -927,6 +927,7 @@ char **copy_amfi_entitlements(uint64_t present) {
         uint64_t item = ReadKernel64(itemBuffer + (i * sizeof(void *)));
         char *entitlementString = OSString_CopyString(item);
         if (!entitlementString) {
+            free(entitlements);
             return NULL;
         }
         size_t len = strlen(entitlementString) + 1;
@@ -934,12 +935,14 @@ char **copy_amfi_entitlements(uint64_t present) {
             bufferSize += 0x1000;
             entitlements = realloc(entitlements, arraySize + bufferSize);
             if (!entitlements) {
+                free(entitlementString);
                 return NULL;
             }
         }
         entitlements[i] = (char*)entitlements + arraySize + bufferUsed;
         strcpy(entitlements[i], entitlementString);
         bufferUsed += len;
+        free(entitlementString);
     }
     return entitlements;
 }
