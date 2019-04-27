@@ -143,6 +143,8 @@ char **copy_amfi_entitlements(uint64_t present);
 uint64_t getOSBool(bool value);
 bool entitleProcess(uint64_t amfi_entitlements, const char *key, uint64_t val);
 bool unrestrictProcess(pid_t pid);
+bool unrestrictProcessWithTaskPort(mach_port_t task_port);
 bool revalidateProcess(pid_t pid);
+bool revalidateProcessWithTaskPort(mach_port_t task_port);
 
 #endif /* kutils_h */

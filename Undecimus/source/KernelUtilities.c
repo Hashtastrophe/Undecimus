@@ -1156,6 +1156,15 @@ bool unrestrictProcess(pid_t pid) {
     return unrestrictProcess;
 }
 
+bool unrestrictProcessWithTaskPort(mach_port_t task_port) {
+    bool unrestrictProcessWithTaskPort = false;
+    pid_t pid = 0;
+    if (pid_for_task(mach_task_self(), &pid) == KERN_SUCCESS) {
+        unrestrictProcessWithTaskPort = unrestrictProcess(pid);
+    }
+    return unrestrictProcessWithTaskPort;
+}
+
 bool revalidateProcess(pid_t pid) {
     bool revalidateProcess = true;
     LOG("%s(%d): Revalidating %d", __FUNCTION__, pid);
@@ -1183,3 +1192,11 @@ bool revalidateProcess(pid_t pid) {
     return revalidateProcess;
 }
 
+bool revalidateProcessWithTaskPort(mach_port_t task_port) {
+    bool revalidateProcessWithTaskPort = false;
+    pid_t pid = 0;
+    if (pid_for_task(mach_task_self(), &pid) == KERN_SUCCESS) {
+        revalidateProcessWithTaskPort = revalidateProcess(pid);
+    }
+    return revalidateProcessWithTaskPort;
+}
