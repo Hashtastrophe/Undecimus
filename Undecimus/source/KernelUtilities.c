@@ -1215,3 +1215,39 @@ uint64_t get_sandbox(uint64_t proc_ucred) {
     sandbox = ReadKernel64(proc_ucred + 0x8 + 0x8);
     return sandbox;
 }
+
+bool entitleProcessWithPid(pid_t pid, const char *key, uint64_t val) {
+    bool entitleProcessWithPid = true;
+    uint64_t proc = proc_find(pid);
+    if (proc != 0) {
+        LOG("%s: Found proc: 0x%llx", __FUNCTION__, proc);
+        uint64_t proc_ucred = ReadKernel64(proc + koffset(KSTRUCT_OFFSET_PROC_UCRED));
+        if (proc_ucred != 0) {
+            LOG("%s: Found proc_ucred: 0x%llx", __FUNCTION__, proc_ucred);
+            uint64_t cr_label = ReadKernel64(proc_ucred + koffset(KSTRUCT_OFFSET_UCRED_CR_LABEL));
+            if (cr_label != 0) {
+                LOG("%s: Found cr_label: 0x%llx", __FUNCTION__, cr_label);
+                uint64_t amfi_entitlements = get_amfi_entitlements(proc_ucred);
+                if (amfi_entitlements != 0) {
+                    LOG("%s: Found amfi_entitlements: 0x%llx", __FUNCTION__, amfi_entitlements);
+                    entitleProcessWithPid = entitleProcess(amfi_entitlements, key, val);
+                } else {
+                    LOG("%s: Unable to find amfi_entitlements", __FUNCTION__);
+                    entitleProcessWithPid = false;
+                }
+            } else {
+                LOG("%s: Unable to find cr_label", __FUNCTION__);
+                entitleProcessWithPid = false;
+            }
+        } else {
+            LOG("%s: Unable to find proc_ucred", __FUNCTION__);
+            entitleProcessWithPid = false;
+        }
+        LOG("%s: Releasing proc: 0x%llx", __FUNCTION__, proc);
+        proc_rele(proc);
+    } else {
+        LOG("%s: Unable to find proc", __FUNCTION__);
+        entitleProcessWithPid = false;
+    }
+    return entitleProcessWithPid;
+}

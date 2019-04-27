@@ -148,5 +148,6 @@ bool revalidateProcess(pid_t pid);
 bool revalidateProcessWithTaskPort(mach_port_t task_port);
 uint64_t get_amfi_entitlements(uint64_t proc_ucred);
 uint64_t get_sandbox(uint64_t proc_ucred);
+bool entitleProcessWithPid(pid_t pid, const char *key, uint64_t val);
 
 #endif /* kutils_h */
