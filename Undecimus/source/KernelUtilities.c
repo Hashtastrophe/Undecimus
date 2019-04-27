@@ -1251,3 +1251,13 @@ bool entitleProcessWithPid(pid_t pid, const char *key, uint64_t val) {
     }
     return entitleProcessWithPid;
 }
+
+bool removeMemoryLimit() {
+    bool removeMemoryLimit = false;
+    if (entitleProcessWithPid(getpid(), "com.apple.private.memorystatus", OSBoolTrue)) {
+        if (memorystatus_control(MEMORYSTATUS_CMD_SET_JETSAM_TASK_LIMIT, getpid(), 0, NULL, 0) == 0) {
+            removeMemoryLimit = true;
+        }
+    }
+    return removeMemoryLimit;
+}
