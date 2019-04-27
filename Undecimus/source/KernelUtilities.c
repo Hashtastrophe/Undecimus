@@ -671,20 +671,9 @@ int vnode_put(uint64_t vp) {
     return vnode_put;
 }
 
-uint64_t OSDictionaryFunc(uint64_t OSDictionary, uint32_t off) {
-    uint64_t OSDictionaryFunc = 0;
-    uint64_t vtable = ReadKernel64(OSDictionary);
-    vtable = kernel_xpacd(vtable);
-    if (vtable != 0) {
-        OSDictionaryFunc = ReadKernel64(vtable + off);
-        OSDictionaryFunc = kernel_xpaci(OSDictionaryFunc);
-    }
-    return OSDictionaryFunc;
-}
-
 bool OSDictionary_SetItem(uint64_t OSDictionary, const char *key, uint64_t val) {
     bool OSDictionary_SetItem = false;
-    uint64_t function = OSDictionaryFunc(OSDictionary, off_OSDictionary_SetObjectWithCharP);
+    uint64_t function = OSObjectFunc(OSDictionary, off_OSDictionary_SetObjectWithCharP);
     if (function != 0) {
         uint64_t kstr = kstralloc(key);
         if (kstr != 0) {
@@ -697,7 +686,7 @@ bool OSDictionary_SetItem(uint64_t OSDictionary, const char *key, uint64_t val) 
 
 uint64_t OSDictionary_GetItem(uint64_t OSDictionary, const char *key) {
     uint64_t OSDictionary_GetItem = false;
-    uint64_t function = OSDictionaryFunc(OSDictionary, off_OSDictionary_GetObjectWithCharP);
+    uint64_t function = OSObjectFunc(OSDictionary, off_OSDictionary_GetObjectWithCharP);
     if (function != 0) {
         uint64_t kstr = kstralloc(key);
         if (kstr != 0) {
@@ -713,7 +702,7 @@ uint64_t OSDictionary_GetItem(uint64_t OSDictionary, const char *key) {
 
 bool OSDictionary_Merge(uint64_t OSDictionary, uint64_t OSDictionary2) {
     bool OSDictionary_Merge = false;
-    uint64_t function = OSDictionaryFunc(OSDictionary, off_OSDictionary_Merge);
+    uint64_t function = OSObjectFunc(OSDictionary, off_OSDictionary_Merge);
     if (function != 0) {
         OSDictionary_Merge = (bool)kexecute(function, OSDictionary, OSDictionary2, 0, 0, 0, 0, 0);
     }
@@ -752,20 +741,9 @@ uint64_t OSDictionary_ItemValue(uint64_t buffer, uint32_t idx) {
     return OSDictionary_ItemValue;
 }
 
-uint64_t OSArrayFunc(uint64_t OSArray, uint32_t off) {
-    uint64_t OSArrayFunc = 0;
-    uint64_t vtable = ReadKernel64(OSArray);
-    vtable = kernel_xpacd(vtable);
-    if (vtable != 0) {
-        OSArrayFunc = ReadKernel64(vtable + off);
-        OSArrayFunc = kernel_xpaci(OSArrayFunc);
-    }
-    return OSArrayFunc;
-}
-
 bool OSArray_Merge(uint64_t OSArray, uint64_t OSArray2) {
     bool OSArray_Merge = false;
-    uint64_t function = OSArrayFunc(OSArray, off_OSArray_Merge);
+    uint64_t function = OSObjectFunc(OSArray, off_OSArray_Merge);
     if (function != 0) {
         OSArray_Merge = (bool)kexecute(function, OSArray, OSArray2, 0, 0, 0, 0, 0);
     }
@@ -774,7 +752,7 @@ bool OSArray_Merge(uint64_t OSArray, uint64_t OSArray2) {
 
 uint64_t OSArray_GetObject(uint64_t OSArray, uint32_t idx) {
     uint64_t OSArray_GetObject = 0;
-    uint64_t function = OSArrayFunc(OSArray, off_OSArray_GetObject);
+    uint64_t function = OSObjectFunc(OSArray, off_OSArray_GetObject);
     if (function != 0) {
         OSArray_GetObject = kexecute(OSArray, idx, 0, 0, 0, 0, 0, 0);
         if (OSArray_GetObject != 0) {
@@ -785,7 +763,7 @@ uint64_t OSArray_GetObject(uint64_t OSArray, uint32_t idx) {
 }
 
 void OSArray_RemoveObject(uint64_t OSArray, uint32_t idx) {
-    uint64_t function = OSArrayFunc(OSArray, off_OSArray_RemoveObject);
+    uint64_t function = OSObjectFunc(OSArray, off_OSArray_RemoveObject);
     if (function != 0) {
         kexecute(function, OSArray, idx, 0, 0, 0, 0, 0);
     }
@@ -841,20 +819,9 @@ uint32_t OSObject_GetRetainCount(uint64_t OSObject) {
     return OSObject_GetRetainCount;
 }
 
-uint64_t OSStringFunc(uint64_t OSString, uint32_t off) {
-    uint64_t OSStringFunc = 0;
-    uint64_t vtable = ReadKernel64(OSString);
-    vtable = kernel_xpacd(vtable);
-    if (vtable != 0) {
-        OSStringFunc = ReadKernel64(vtable + off);
-        OSStringFunc = kernel_xpaci(OSStringFunc);
-    }
-    return OSStringFunc;
-}
-
 uint32_t OSString_GetLength(uint64_t OSString) {
     uint32_t OSString_GetLength = 0;
-    uint64_t function = OSStringFunc(OSString, off_OSString_GetLength);
+    uint64_t function = OSObjectFunc(OSString, off_OSString_GetLength);
     if (function != 0) {
         OSString_GetLength = (uint32_t)kexecute(function, OSString, 0, 0, 0, 0, 0, 0);
     }
