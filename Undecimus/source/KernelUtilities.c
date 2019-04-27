@@ -63,7 +63,10 @@ const char *abs_path_exceptions[] = {
     NULL
 };
 
+#define MEMORYSTATUS_CMD_SET_JETSAM_TASK_LIMIT 6
+
 int csops(pid_t pid, unsigned int  ops, void * useraddr, size_t usersize);
+int memorystatus_control(uint32_t command, int32_t pid, uint32_t flags, void *buffer, size_t buffersize);
 
 uint64_t the_realhost;
 uint64_t kernel_base = -1;
@@ -1027,7 +1030,7 @@ bool exceptionalizeProcess(uint64_t sandbox, uint64_t amfi_entitlements, const c
 
 bool unrestrictProcess(pid_t pid) {
     bool unrestrictProcess = true;
-    LOG("%s(%d): Unrestricting %d", __FUNCTION__, pid);
+    LOG("%s(%d): Unrestricting", __FUNCTION__, pid);
     uint64_t proc = proc_find(pid);
     if (proc != 0) {
         LOG("%s(%d): Found proc: 0x%llx", __FUNCTION__, pid, proc);
@@ -1064,8 +1067,8 @@ bool unrestrictProcess(pid_t pid) {
             uint64_t cr_label = ReadKernel64(proc_ucred + koffset(KSTRUCT_OFFSET_UCRED_CR_LABEL));
             if (cr_label != 0) {
                 LOG("%s(%d): Found cr_label: 0x%llx", __FUNCTION__, pid, cr_label);
-                uint64_t amfi_entitlements = ReadKernel64(cr_label + 0x8);
-                uint64_t sandbox = ReadKernel64(cr_label + 0x8 + 0x8);
+                uint64_t amfi_entitlements = get_amfi_entitlements(proc_ucred);
+                uint64_t sandbox = get_sandbox(proc_ucred);
                 LOG("%s(%d): Entitling process with: %s", __FUNCTION__, pid, "com.apple.private.skip-library-validation");
                 entitleProcess(amfi_entitlements, "com.apple.private.skip-library-validation", OSBoolTrue);
                 if (OPT(GET_TASK_ALLOW)) {
@@ -1167,7 +1170,7 @@ bool unrestrictProcessWithTaskPort(mach_port_t task_port) {
 
 bool revalidateProcess(pid_t pid) {
     bool revalidateProcess = true;
-    LOG("%s(%d): Revalidating %d", __FUNCTION__, pid);
+    LOG("%s(%d): Revalidating", __FUNCTION__, pid);
     uint32_t cs_flags = 0;
     if (csops(pid, CS_OPS_STATUS, (void *)&cs_flags, sizeof(cs_flags)) == 0) {
         if (!(cs_flags & CS_VALID)) {
@@ -1199,4 +1202,16 @@ bool revalidateProcessWithTaskPort(mach_port_t task_port) {
         revalidateProcessWithTaskPort = revalidateProcess(pid);
     }
     return revalidateProcessWithTaskPort;
+}
+
+uint64_t get_amfi_entitlements(uint64_t proc_ucred) {
+    uint64_t amfi_entitlements = 0;
+    amfi_entitlements = ReadKernel64(proc_ucred + 0x8);
+    return amfi_entitlements;
+}
+
+uint64_t get_sandbox(uint64_t proc_ucred) {
+    uint64_t sandbox = 0;
+    sandbox = ReadKernel64(proc_ucred + 0x8 + 0x8);
+    return sandbox;
 }
